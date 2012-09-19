@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("AgFx")]
 [assembly: AssemblyDescription("Data Caching framework for Windows Phone 7 applications.")]

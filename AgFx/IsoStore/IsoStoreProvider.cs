@@ -16,15 +16,65 @@ using System.Threading;
 namespace AgFx.IsoStore {
 
     internal class HashedIsoStoreProvider : StoreProviderBase {
+
         public const int FlushThreshholdBytes = 100000;
 
         private const char FileNameSeparator = '»';
 
-        private const string CacheDirectoryName = "«c";
+        internal static string CacheDirectoryName
+        {
+            get
+            {
+                if (_actualCacheDirectoryName == null)
+                {
+                    // Classic/Backward-compat.
+                    _actualCacheDirectoryName = FileNameSeparator + "c";
 
-        internal const string CacheDirectoryPrefix = CacheDirectoryName + "\\";
+                    // Need to get from the app!
+                    // Convention-based.
+                    if (_cachedVersion == null)
+                    {
+                        Type app = System.Windows.Application.Current.GetType();
+                        var versionProperty = app.GetProperty("Version");
+                        if (versionProperty != null)
+                        {
+                            string version = (string)versionProperty.GetValue(System.Windows.Application.Current, null);
+                            _cachedVersion = version;
+                        }
+                    }
 
-        internal const string CacheDirectorySearchPrefix = CacheDirectoryPrefix + "*";
+                    if (_cachedVersion == null)
+                    {
+                        throw new InvalidOperationException("Cached Version is still null???");
+                    }
+
+                    _actualCacheDirectoryName = "cache" + _cachedVersion;
+                    System.Diagnostics.Debug.WriteLine("**>>>***                    " + _actualCacheDirectoryName);
+                }
+
+                return _actualCacheDirectoryName;
+            }
+        }
+
+        internal static string _cachedVersion;
+
+        private static string _actualCacheDirectoryName;
+
+        internal static string CacheDirectoryPrefix
+        {
+            get
+            {
+                return CacheDirectoryName + "\\";
+            }
+        }
+
+        internal static string CacheDirectorySearchPrefix
+        {
+            get
+            {
+                return CacheDirectoryPrefix + "*";
+            }
+        }
 
         private static object LockObject = new object();
 
